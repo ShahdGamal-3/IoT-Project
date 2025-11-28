@@ -1,0 +1,7 @@
+# Wokwi Library Dependencies
+# This file specifies the Arduino libraries required for the simulation
+
+OneWire
+DallasTemperature
+LiquidCrystal I2C
+DHT sensor library

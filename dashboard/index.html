@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Monitoring Dashboard - IoT System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <h1>Smart Farm Monitor</h1>
+                </div>
+                <div class="status-bar">
+                    <div class="connection-status" id="connectionStatus">
+                        <i class="fas fa-circle"></i>
+                        <span>Disconnected</span>
+                    </div>
+                    <div class="last-update">
+                        Last Update: <span id="lastUpdate">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Info Banner for Simulation Mode -->
+        <div id="simInfoBanner" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.2) 0%, rgba(230, 126, 34, 0.2) 100%); border: 1px solid var(--warning-color); border-radius: 8px; padding: 12px 20px; margin: 10px 0; display: none;">
+            <i class="fas fa-info-circle" style="color: var(--warning-color); margin-right: 10px;"></i>
+            <strong>Simulation Mode:</strong> Dashboard running locally for testing. Sliders update display values only. 
+            To connect to real ESP32 hardware, set <code>SIMULATION_MODE = false</code> in <code>app.js</code> and configure your ESP32's IP address.
+        </div>
+
+        <!-- Current Values Summary -->
+        <section class="live-display-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-desktop"></i> Live Sensor Display</h2>
+                <span class="update-indicator"><i class="fas fa-circle-notch fa-spin"></i> Real-time</span>
+            </div>
+            
+            <div class="display-grid">
+                <!-- Soil Monitoring Display -->
+                <div class="display-card soil-card">
+                    <div class="card-icon"><i class="fas fa-mountain"></i></div>
+                    <h3>Soil Monitoring</h3>
+                    <div class="value-row">
+                        <span class="label">Moisture:</span>
+                        <span class="value" id="display-soilMoisture">45.0%</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Temperature:</span>
+                        <span class="value" id="display-soilTemp">22.5°C</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">pH Level:</span>
+                        <span class="value" id="display-soilPH">6.8</span>
+                    </div>
+                </div>
+
+                <!-- Plant Health Display -->
+                <div class="display-card plant-card">
+                    <div class="card-icon"><i class="fas fa-leaf"></i></div>
+                    <h3>Plant Health</h3>
+                    <div class="value-row">
+                        <span class="label">Leaf Temp:</span>
+                        <span class="value" id="display-leafTemp">28.0°C</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Leaf Wetness:</span>
+                        <span class="value" id="display-leafWetness">15.0%</span>
+                    </div>
+                </div>
+
+                <!-- Climate Display -->
+                <div class="display-card climate-card">
+                    <div class="card-icon"><i class="fas fa-cloud-sun"></i></div>
+                    <h3>Climate</h3>
+                    <div class="value-row">
+                        <span class="label">Air Temp:</span>
+                        <span class="value" id="display-airTemp">25.0°C</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Humidity:</span>
+                        <span class="value" id="display-humidity">60.0%</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Light:</span>
+                        <span class="value" id="display-light">850 lux</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Rainfall:</span>
+                        <span class="value" id="display-rainfall">12.5 mm</span>
+                    </div>
+                </div>
+
+                <!-- Wind Display -->
+                <div class="display-card wind-card">
+                    <div class="card-icon"><i class="fas fa-wind"></i></div>
+                    <h3>Wind</h3>
+                    <div class="value-row">
+                        <span class="label">Speed:</span>
+                        <span class="value" id="display-windSpeed">5.2 km/h</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Direction:</span>
+                        <span class="value" id="display-windDirection">NW (315°)</span>
+                    </div>
+                </div>
+
+                <!-- Air Quality Display -->
+                <div class="display-card air-card">
+                    <div class="card-icon"><i class="fas fa-smog"></i></div>
+                    <h3>Air Quality</h3>
+                    <div class="value-row">
+                        <span class="label">Gas (MQ2):</span>
+                        <span class="value" id="display-gas">125 PPM</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">CO₂:</span>
+                        <span class="value" id="display-co2">450 PPM</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">CO:</span>
+                        <span class="value" id="display-co">15 PPM</span>
+                    </div>
+                </div>
+
+                <!-- Resources Display -->
+                <div class="display-card resources-card">
+                    <div class="card-icon"><i class="fas fa-tint"></i></div>
+                    <h3>Resources</h3>
+                    <div class="value-row">
+                        <span class="label">Water Level:</span>
+                        <span class="value" id="display-waterLevel">75.0%</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Weight:</span>
+                        <span class="value" id="display-weight">45.2 kg</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="label">Motion:</span>
+                        <span class="value" id="display-motion">No Activity</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Current Values Display Section -->
+        <section class="section values-display-section">
+            <h2><i class="fas fa-chart-line"></i> Current Sensor Values (Live Display)</h2>
+            <div class="values-tabs">
+                <button class="tab-button active" data-tab="soil-values">Soil</button>
+                <button class="tab-button" data-tab="plant-values">Plant Health</button>
+                <button class="tab-button" data-tab="climate-values">Climate</button>
+                <button class="tab-button" data-tab="wind-values">Wind</button>
+                <button class="tab-button" data-tab="air-values">Air Quality</button>
+                <button class="tab-button" data-tab="resources-values">Resources</button>
+                <button class="tab-button" data-tab="all-values">All Sensors</button>
+            </div>
+
+            <!-- Tab Content Panels -->
+            <div class="tab-content">
+                <!-- Soil Tab -->
+                <div id="soil-values" class="tab-panel active">
+                    <div class="values-grid">
+                        <div class="value-display-card">
+                            <i class="fas fa-tint"></i>
+                            <div class="value-label">Soil Moisture</div>
+                            <div class="value-number"><span id="display-soilMoisture">45.0</span> %</div>
+                            <div class="value-status" id="display-soilMoisture-status">Normal</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-thermometer-half"></i>
+                            <div class="value-label">Soil Temperature</div>
+                            <div class="value-number"><span id="display-soilTemp">22.5</span> °C</div>
+                            <div class="value-status" id="display-soilTemp-status">Optimal</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-flask"></i>
+                            <div class="value-label">Soil pH</div>
+                            <div class="value-number"><span id="display-soilPH">6.8</span> pH</div>
+                            <div class="value-status" id="display-soilPH-status">Optimal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plant Health Tab -->
+                <div id="plant-values" class="tab-panel">
+                    <div class="values-grid">
+                        <div class="value-display-card">
+                            <i class="fas fa-leaf"></i>
+                            <div class="value-label">Leaf Temperature</div>
+                            <div class="value-number"><span id="display-leafTemp">28.0</span> °C</div>
+                            <div class="value-status" id="display-leafTemp-status">Healthy</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-droplet"></i>
+                            <div class="value-label">Leaf Wetness</div>
+                            <div class="value-number"><span id="display-leafWetness">15.0</span> %</div>
+                            <div class="value-status" id="display-leafWetness-status">Dry</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Climate Tab -->
+                <div id="climate-values" class="tab-panel">
+                    <div class="values-grid">
+                        <div class="value-display-card">
+                            <i class="fas fa-temperature-three-quarters"></i>
+                            <div class="value-label">Air Temperature</div>
+                            <div class="value-number"><span id="display-airTemp">25.0</span> °C</div>
+                            <div class="value-status" id="display-airTemp-status">Comfortable</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-water"></i>
+                            <div class="value-label">Humidity</div>
+                            <div class="value-number"><span id="display-humidity">60.0</span> %</div>
+                            <div class="value-status" id="display-humidity-status">Normal</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-sun"></i>
+                            <div class="value-label">Light Intensity</div>
+                            <div class="value-number"><span id="display-light">850</span> lux</div>
+                            <div class="value-status" id="display-light-status">Bright</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-cloud-rain"></i>
+                            <div class="value-label">Rainfall</div>
+                            <div class="value-number"><span id="display-rainfall">12.5</span> mm</div>
+                            <div class="value-status" id="display-rainfall-status">Light Rain</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wind Tab -->
+                <div id="wind-values" class="tab-panel">
+                    <div class="values-grid">
+                        <div class="value-display-card">
+                            <i class="fas fa-wind"></i>
+                            <div class="value-label">Wind Speed</div>
+                            <div class="value-number"><span id="display-windSpeed">5.2</span> km/h</div>
+                            <div class="value-status" id="display-windSpeed-status">Light Breeze</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-compass"></i>
+                            <div class="value-label">Wind Direction</div>
+                            <div class="value-number"><span id="display-windDirection">315</span>° (NW)</div>
+                            <div class="value-status" id="display-windDirection-status">Northwest</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Air Quality Tab -->
+                <div id="air-values" class="tab-panel">
+                    <div class="values-grid">
+                        <div class="value-display-card">
+                            <i class="fas fa-smog"></i>
+                            <div class="value-label">Gas (MQ2)</div>
+                            <div class="value-number"><span id="display-gas">125</span> PPM</div>
+                            <div class="value-status" id="display-gas-status">Safe</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-cloud"></i>
+                            <div class="value-label">CO₂ (MQ135)</div>
+                            <div class="value-number"><span id="display-co2">450</span> PPM</div>
+                            <div class="value-status" id="display-co2-status">Good</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-fire"></i>
+                            <div class="value-label">CO (MQ7)</div>
+                            <div class="value-number"><span id="display-co">15</span> PPM</div>
+                            <div class="value-status" id="display-co-status">Safe</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resources Tab -->
+                <div id="resources-values" class="tab-panel">
+                    <div class="values-grid">
+                        <div class="value-display-card">
+                            <i class="fas fa-water"></i>
+                            <div class="value-label">Water Level</div>
+                            <div class="value-number"><span id="display-waterLevel">75.0</span> %</div>
+                            <div class="value-status" id="display-waterLevel-status">Good</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-person-running"></i>
+                            <div class="value-label">Motion Sensor</div>
+                            <div class="value-number"><span id="display-motion">No Motion</span></div>
+                            <div class="value-status" id="display-motion-status">Clear</div>
+                        </div>
+                        <div class="value-display-card">
+                            <i class="fas fa-weight-scale"></i>
+                            <div class="value-label">Weight</div>
+                            <div class="value-number"><span id="display-weight">45.2</span> kg</div>
+                            <div class="value-status" id="display-weight-status">Normal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Sensors Tab -->
+                <div id="all-values" class="tab-panel">
+                    <div class="all-values-compact">
+                        <div class="compact-value-row">
+                            <span class="compact-label">Soil Moisture:</span>
+                            <span class="compact-value" id="all-soilMoisture">45.0%</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Soil Temperature:</span>
+                            <span class="compact-value" id="all-soilTemp">22.5°C</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Soil pH:</span>
+                            <span class="compact-value" id="all-soilPH">6.8 pH</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Leaf Temperature:</span>
+                            <span class="compact-value" id="all-leafTemp">28.0°C</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Leaf Wetness:</span>
+                            <span class="compact-value" id="all-leafWetness">15.0%</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Air Temperature:</span>
+                            <span class="compact-value" id="all-airTemp">25.0°C</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Humidity:</span>
+                            <span class="compact-value" id="all-humidity">60.0%</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Light Intensity:</span>
+                            <span class="compact-value" id="all-light">850 lux</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Rainfall:</span>
+                            <span class="compact-value" id="all-rainfall">12.5 mm</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Wind Speed:</span>
+                            <span class="compact-value" id="all-windSpeed">5.2 km/h</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Wind Direction:</span>
+                            <span class="compact-value" id="all-windDirection">315° (NW)</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Gas (MQ2):</span>
+                            <span class="compact-value" id="all-gas">125 PPM</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">CO₂ (MQ135):</span>
+                            <span class="compact-value" id="all-co2">450 PPM</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">CO (MQ7):</span>
+                            <span class="compact-value" id="all-co">15 PPM</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Water Level:</span>
+                            <span class="compact-value" id="all-waterLevel">75.0%</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Motion:</span>
+                            <span class="compact-value" id="all-motion">No Motion</span>
+                        </div>
+                        <div class="compact-value-row">
+                            <span class="compact-label">Weight:</span>
+                            <span class="compact-value" id="all-weight">45.2 kg</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Soil Section -->
+            <section class="section">
+                <h2><i class="fas fa-mountain"></i> Soil Monitoring</h2>
+                <div class="cards-grid">
+                    <!-- Soil Moisture -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-tint"></i>
+                            <h3>Soil Moisture</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="soilMoisture" class="value">45.0</span>
+                            <span class="unit">%</span>
+                        </div>
+                        <div class="status-badge" id="soilMoistureStatus">Normal</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="soilMoistureSlider" min="0" max="100" value="45" step="0.1">
+                            <span class="slider-value">45.0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Soil Temperature -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-thermometer-half"></i>
+                            <h3>Soil Temperature</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="soilTemp" class="value">22.5</span>
+                            <span class="unit">°C</span>
+                        </div>
+                        <div class="status-badge" id="soilTempStatus">Optimal</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="soilTempSlider" min="-10" max="50" value="22.5" step="0.1">
+                            <span class="slider-value">22.5°C</span>
+                        </div>
+                    </div>
+
+                    <!-- Soil pH -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-flask"></i>
+                            <h3>Soil pH Level</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="soilPH" class="value">6.8</span>
+                            <span class="unit">pH</span>
+                        </div>
+                        <div class="status-badge" id="soilPHStatus">Optimal</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="soilPHSlider" min="0" max="14" value="6.8" step="0.1">
+                            <span class="slider-value">6.8 pH</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Plant Health Section -->
+            <section class="section">
+                <h2><i class="fas fa-seedling"></i> Plant Health</h2>
+                <div class="cards-grid">
+                    <!-- Leaf Temperature -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-temperature-high"></i>
+                            <h3>Leaf Temperature</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="leafTemp" class="value">28.0</span>
+                            <span class="unit">°C</span>
+                        </div>
+                        <div class="status-badge" id="leafTempStatus">Optimal</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="leafTempSlider" min="10" max="50" value="28" step="0.1">
+                            <span class="slider-value">28.0°C</span>
+                        </div>
+                    </div>
+
+                    <!-- Leaf Wetness -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-droplet"></i>
+                            <h3>Leaf Wetness</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="leafWetness" class="value">15.0</span>
+                            <span class="unit">%</span>
+                        </div>
+                        <div class="status-badge" id="leafWetnessStatus">Dry</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="leafWetnessSlider" min="0" max="100" value="15" step="0.1">
+                            <span class="slider-value">15.0%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Climate Section -->
+            <section class="section">
+                <h2><i class="fas fa-cloud-sun"></i> Climate Monitoring</h2>
+                <div class="cards-grid">
+                    <!-- Air Temperature -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-temperature-three-quarters"></i>
+                            <h3>Air Temperature</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="airTemp" class="value">25.0</span>
+                            <span class="unit">°C</span>
+                        </div>
+                        <div class="status-badge" id="airTempStatus">Comfortable</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="airTempSlider" min="-20" max="50" value="25" step="0.1">
+                            <span class="slider-value">25.0°C</span>
+                        </div>
+                    </div>
+
+                    <!-- Humidity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-water"></i>
+                            <h3>Humidity</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="humidity" class="value">60.0</span>
+                            <span class="unit">%</span>
+                        </div>
+                        <div class="status-badge" id="humidityStatus">Normal</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="humiditySlider" min="0" max="100" value="60" step="0.1">
+                            <span class="slider-value">60.0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Light Intensity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-sun"></i>
+                            <h3>Light Intensity</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="light" class="value">850</span>
+                            <span class="unit">lux</span>
+                        </div>
+                        <div class="status-badge" id="lightStatus">Bright</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="lightSlider" min="0" max="1500" value="850" step="1">
+                            <span class="slider-value">850 lux</span>
+                        </div>
+                    </div>
+
+                    <!-- Rainfall -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-cloud-rain"></i>
+                            <h3>Rainfall</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="rainfall" class="value">12.5</span>
+                            <span class="unit">mm</span>
+                        </div>
+                        <div class="status-badge" id="rainfallStatus">Light Rain</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="rainfallSlider" min="0" max="100" value="12.5" step="0.1">
+                            <span class="slider-value">12.5 mm</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wind Section -->
+            <section class="section">
+                <h2><i class="fas fa-wind"></i> Wind Monitoring</h2>
+                <div class="cards-grid">
+                    <!-- Wind Speed -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-gauge-high"></i>
+                            <h3>Wind Speed</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="windSpeed" class="value">5.2</span>
+                            <span class="unit">m/s</span>
+                        </div>
+                        <div class="status-badge" id="windSpeedStatus">Gentle Breeze</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="windSpeedSlider" min="0" max="30" value="5.2" step="0.1">
+                            <span class="slider-value">5.2 m/s</span>
+                        </div>
+                    </div>
+
+                    <!-- Wind Direction -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-compass"></i>
+                            <h3>Wind Direction</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="windDirection" class="value">NW</span>
+                        </div>
+                        <div class="status-badge" id="windDirStatus">Northwest</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="windDirSlider" min="0" max="360" value="315" step="1">
+                            <span class="slider-value">315°</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Air Quality Section -->
+            <section class="section">
+                <h2><i class="fas fa-smog"></i> Air Quality</h2>
+                <div class="cards-grid">
+                    <!-- Gas Sensor (MQ2) -->
+                    <div class="card alert-card">
+                        <div class="card-header">
+                            <i class="fas fa-fire"></i>
+                            <h3>Gas Detection (MQ2)</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="gas" class="value">125</span>
+                            <span class="unit">ppm</span>
+                        </div>
+                        <div class="status-badge" id="gasStatus">Safe</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="gasSlider" min="0" max="1000" value="125" step="1">
+                            <span class="slider-value">125 ppm</span>
+                        </div>
+                    </div>
+
+                    <!-- CO2 Sensor -->
+                    <div class="card alert-card">
+                        <div class="card-header">
+                            <i class="fas fa-cloud"></i>
+                            <h3>CO₂ Level</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="co2" class="value">450</span>
+                            <span class="unit">ppm</span>
+                        </div>
+                        <div class="status-badge" id="co2Status">Good</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="co2Slider" min="400" max="5000" value="450" step="10">
+                            <span class="slider-value">450 ppm</span>
+                        </div>
+                    </div>
+
+                    <!-- CO Sensor -->
+                    <div class="card alert-card">
+                        <div class="card-header">
+                            <i class="fas fa-skull-crossbones"></i>
+                            <h3>CO Level</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="co" class="value">15</span>
+                            <span class="unit">ppm</span>
+                        </div>
+                        <div class="status-badge" id="coStatus">Safe</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="coSlider" min="0" max="1000" value="15" step="1">
+                            <span class="slider-value">15 ppm</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section class="section">
+                <h2><i class="fas fa-database"></i> Resources & Security</h2>
+                <div class="cards-grid">
+                    <!-- Water Tank -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-fill-drip"></i>
+                            <h3>Water Tank Level</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="waterLevel" class="value">75.0</span>
+                            <span class="unit">%</span>
+                        </div>
+                        <div class="status-badge" id="waterStatus">Good</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="waterSlider" min="0" max="100" value="75" step="0.1">
+                            <span class="slider-value">75.0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Motion Detection -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-person-walking"></i>
+                            <h3>Motion Detection</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="motion" class="value">No Motion</span>
+                        </div>
+                        <div class="status-badge" id="motionStatus">Clear</div>
+                        <div class="control-slider">
+                            <label>Simulate:</label>
+                            <button id="motionBtn" class="toggle-btn">Trigger Motion</button>
+                        </div>
+                    </div>
+
+                    <!-- Weight Sensor -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-weight-scale"></i>
+                            <h3>Inventory Weight</h3>
+                        </div>
+                        <div class="card-value">
+                            <span id="weight" class="value">45.2</span>
+                            <span class="unit">kg</span>
+                        </div>
+                        <div class="status-badge" id="weightStatus">Normal</div>
+                        <div class="control-slider">
+                            <label>Simulate Value:</label>
+                            <input type="range" id="weightSlider" min="0" max="200" value="45.2" step="0.1">
+                            <span class="slider-value">45.2 kg</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Alerts -->
+            <section class="section alerts-section">
+                <h2><i class="fas fa-bell"></i> System Alerts</h2>
+                <div class="alerts-container" id="alertsContainer">
+                    <div class="alert-item info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>System started successfully</span>
+                        <span class="alert-time">Just now</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Smart Farm IoT System | ESP32 WebSocket Dashboard</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
