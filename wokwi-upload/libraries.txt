@@ -1,0 +1,8 @@
+# Wokwi Required Libraries
+# Place this file in the same directory as your sketch.ino on Wokwi.com
+
+OneWire
+DallasTemperature
+LiquidCrystal I2C
+DHT sensor library
+HX711

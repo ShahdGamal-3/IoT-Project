@@ -5,3 +5,4 @@ OneWire
 DallasTemperature
 LiquidCrystal I2C
 DHT sensor library
+HX711

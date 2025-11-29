@@ -3,6 +3,7 @@
 ## Files in this folder:
 1. **sketch.ino** - Complete single-file Arduino code (all sensors merged)
 2. **diagram.json** - Circuit diagram with all connections
+3. **libraries.txt** - Required Arduino libraries
 
 ---
 
@@ -29,6 +30,16 @@ https://wokwi.com/new/esp32
 5. Click "Import"
 
 Your complete circuit with all 16 sensors will appear!
+
+### Step 3.5: Add Libraries (Optional - Usually Automatic)
+Wokwi usually detects libraries automatically, but if needed:
+1. Click the **"Library Manager"** icon (book icon in left sidebar)
+2. Add each library from `libraries.txt`:
+   - OneWire
+   - DallasTemperature
+   - LiquidCrystal I2C
+   - DHT sensor library
+   - HX711
 
 ### Step 4: Install Required Libraries
 Wokwi will automatically detect and install:
