@@ -6,6 +6,10 @@
     <title>Farm Monitoring Dashboard - IoT System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="container">
@@ -28,11 +32,18 @@
             </div>
         </header>
 
-        <!-- Info Banner for Simulation Mode -->
+        <!-- Info Banner -->
         <div id="simInfoBanner" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.2) 0%, rgba(230, 126, 34, 0.2) 100%); border: 1px solid var(--warning-color); border-radius: 8px; padding: 12px 20px; margin: 10px 0; display: none;">
             <i class="fas fa-info-circle" style="color: var(--warning-color); margin-right: 10px;"></i>
             <strong>Simulation Mode:</strong> Dashboard running locally for testing. Sliders update display values only. 
             To connect to real ESP32 hardware, set <code>SIMULATION_MODE = false</code> in <code>app.js</code> and configure your ESP32's IP address.
+        </div>
+        
+        <!-- Firebase Info Banner -->
+        <div id="firebaseInfoBanner" style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.2) 0%, rgba(39, 174, 96, 0.2) 100%); border: 1px solid #27ae60; border-radius: 8px; padding: 12px 20px; margin: 10px 0; display: none;">
+            <i class="fas fa-cloud" style="color: #27ae60; margin-right: 10px;"></i>
+            <strong>Firebase Mode:</strong> Dashboard connected to Firebase Realtime Database. Data updates automatically in real-time from your ESP32 devices.
+            <span style="margin-left: 10px; font-size: 0.9em; opacity: 0.8;">Configure Firebase credentials in <code>app.js</code></span>
         </div>
 
         <!-- Current Values Summary -->

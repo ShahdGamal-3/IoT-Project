@@ -1,0 +1,8 @@
+[wokwi]
+version = 1
+firmware = "smart_farm_merged.ino"
+elf = ""
+
+[[net.forward]]
+from = "localhost:9011"
+to = "target:80"

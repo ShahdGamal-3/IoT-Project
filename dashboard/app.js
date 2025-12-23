@@ -1,7 +1,24 @@
-// WebSocket Configuration
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCERYj-T7s_ohva1CSUrjfqIaNr5QgCkfU",
+    authDomain: "smartmonitoringfarm.firebaseapp.com",
+    databaseURL: "https://smartmonitoringfarm-default-rtdb.firebaseio.com",
+    projectId: "smartmonitoringfarm",
+    storageBucket: "smartmonitoringfarm.firebasestorage.app",
+    messagingSenderId: "57230009222",
+    appId: "1:57230009222:web:762c168fe829f3202d0207",
+    measurementId: "G-PW83B61R01"
+};
+
+// Initialize Firebase
+let database;
+let firebaseInitialized = false;
+
+// WebSocket Configuration (kept for backwards compatibility)
 const ESP32_IP = 'localhost'; // For Serial Bridge, use 'localhost'
 const WS_PORT = 8765; // Serial Bridge WebSocket port
-const SIMULATION_MODE = true; // Set to true for local testing without ESP32
+const USE_FIREBASE = true; // Set to true to use Firebase, false for WebSocket
+const SIMULATION_MODE = false; // Set to true for local testing without any connection
 let ws;
 let reconnectInterval;
 let reconnectAttempts = 0;
@@ -32,19 +49,30 @@ let sensorData = {
 document.addEventListener('DOMContentLoaded', function() {
     initializeSliders();
     
-    // Check if simulation mode or real hardware mode
+    // Check if simulation mode, Firebase mode, or WebSocket mode
     if (SIMULATION_MODE) {
-        console.log('Running in SIMULATION MODE - WebSocket disabled');
+        console.log('Running in SIMULATION MODE - All connections disabled');
         updateConnectionStatus(false, true); // false = not connected, true = simulation mode
         
-        // Show info banner
+        // Show simulation info banner
         const banner = document.getElementById('simInfoBanner');
         if (banner) {
             banner.style.display = 'block';
         }
         
         addAlert('Running in Simulation Mode - Sliders control display locally', 'info');
+    } else if (USE_FIREBASE) {
+        console.log('Initializing Firebase connection...');
+        
+        // Show Firebase info banner
+        const firebaseBanner = document.getElementById('firebaseInfoBanner');
+        if (firebaseBanner) {
+            firebaseBanner.style.display = 'block';
+        }
+        
+        initializeFirebase();
     } else {
+        console.log('Initializing WebSocket connection...');
         initializeWebSocket();
     }
     
@@ -139,6 +167,117 @@ function sendCommand(command, value) {
         if (!SIMULATION_MODE) {
             addAlert('Cannot send command: Not connected', 'danger');
         }
+    }
+}
+
+// Firebase Functions
+function initializeFirebase() {
+    try {
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        firebaseInitialized = true;
+        
+        console.log('Firebase initialized successfully');
+        updateConnectionStatus(true, false);
+        addAlert('Connected to Firebase Realtime Database', 'success');
+        
+        // Set up real-time listeners for all sensor data
+        setupFirebaseListeners();
+        
+    } catch (error) {
+        console.error('Error initializing Firebase:', error);
+        updateConnectionStatus(false, false);
+        addAlert('Failed to connect to Firebase: ' + error.message, 'danger');
+    }
+}
+
+function setupFirebaseListeners() {
+    if (!firebaseInitialized) {
+        console.error('Firebase not initialized');
+        return;
+    }
+    
+    // Listen to soil sensor data
+    database.ref('sensors/soil').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            console.log('Soil data received:', data);
+            sensorData.soilMoisture = data.moisture || sensorData.soilMoisture;
+            sensorData.soilPH = data.ph || sensorData.soilPH;
+            sensorData.soilTemp = data.temperature || sensorData.soilTemp;
+            updateAllValues();
+        }
+    });
+    
+    // Listen to weather sensor data
+    database.ref('sensors/weather').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            console.log('Weather data received:', data);
+            sensorData.airTemp = data.airTemp || sensorData.airTemp;
+            sensorData.humidity = data.humidity || sensorData.humidity;
+            sensorData.leafWetness = data.leafWetness || sensorData.leafWetness;
+            sensorData.leafTemp = data.leafTemp || sensorData.leafTemp;
+            sensorData.light = data.light || sensorData.light;
+            sensorData.windSpeed = data.windSpeed || sensorData.windSpeed;
+            sensorData.windDirection = data.windDirection || sensorData.windDirection;
+            sensorData.rainfall = data.rainfall || sensorData.rainfall;
+            updateAllValues();
+        }
+    });
+    
+    // Listen to gateway sensor data
+    database.ref('sensors/gateway').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            console.log('Gateway data received:', data);
+            sensorData.waterLevel = data.waterLevel || sensorData.waterLevel;
+            sensorData.gas = data.gas || sensorData.gas;
+            sensorData.co2 = data.co2 || sensorData.co2;
+            sensorData.co = data.co || sensorData.co;
+            sensorData.motion = data.motion || sensorData.motion;
+            sensorData.weight = data.weight || sensorData.weight;
+            updateAllValues();
+        }
+    });
+    
+    // Listen to alerts
+    database.ref('alerts').on('value', (snapshot) => {
+        const alerts = snapshot.val();
+        if (alerts) {
+            console.log('Alerts received:', alerts);
+            checkFirebaseAlerts(alerts);
+        }
+    });
+    
+    // Listen to system info
+    database.ref('system/lastUpdate').on('value', (snapshot) => {
+        const lastUpdate = snapshot.val();
+        if (lastUpdate) {
+            console.log('Last update timestamp:', lastUpdate);
+        }
+    });
+}
+
+function checkFirebaseAlerts(alerts) {
+    if (alerts.soilMoistureLow && sensorData.soilMoisture < 30) {
+        addAlert('⚠️ Soil moisture is low! Irrigation recommended.', 'warning');
+    }
+    if (alerts.gasHigh && sensorData.gas > 500) {
+        addAlert('🚨 Hazardous gas level detected!', 'danger');
+    }
+    if (alerts.co2High && sensorData.co2 > 1000) {
+        addAlert('⚠️ CO₂ level elevated!', 'warning');
+    }
+    if (alerts.coHigh && sensorData.co > 50) {
+        addAlert('🚨 Dangerous CO level detected!', 'danger');
+    }
+    if (alerts.waterLow && sensorData.waterLevel < 20) {
+        addAlert('⚠️ Water tank level low!', 'warning');
+    }
+    if (alerts.motionDetected) {
+        addAlert('👁️ Motion detected in monitored area', 'info');
     }
 }
 

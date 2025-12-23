@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "author": "Smart Monitoring Farm",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot3",
+      "top": -30.1,
+      "left": -259.4,
+      "attrs": { "label": "Leaf Wetness" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot9",
+      "top": 75.5,
+      "left": -259.4,
+      "attrs": { "label": "Leaf Temp" }
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": 173.1,
+      "left": -255,
+      "attrs": { "temperature": "25", "humidity": "50" }
+    },
+    { "type": "wokwi-photoresistor-sensor", "id": "ldr1", "top": 320, "left": -316, "attrs": {} },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot4",
+      "top": 229.1,
+      "left": 95.8,
+      "attrs": { "label": "Wind Speed" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot5",
+      "top": 334.7,
+      "left": 95.8,
+      "attrs": { "label": "Wind Direction" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot8",
+      "top": 421.1,
+      "left": 95.8,
+      "attrs": { "label": "Rainfall" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "pot3:GND", "esp:GND.1", "black", [ "v19.2", "h134.4", "v96" ] ],
+    [ "pot3:VCC", "esp:3V3", "red", [ "v-9.6", "h215.01" ] ],
+    [ "pot3:SIG", "esp:32", "purple", [ "v13.9", "h172.6", "v-96" ] ],
+    [ "pot9:GND", "esp:GND.1", "black", [ "v9.6", "h235.01" ] ],
+    [ "pot9:VCC", "esp:3V3", "red", [ "v-18.1", "h95.4", "v-201.6" ] ],
+    [ "pot9:SIG", "esp:37", "orange", [ "h0" ] ],
+    [ "dht1:GND", "esp:GND.1", "black", [ "h115.2", "v-134.4" ] ],
+    [ "dht1:VCC", "esp:3V3", "red", [ "v-9.6", "h124.8", "v-249.6" ] ],
+    [ "dht1:SDA", "esp:25", "green", [ "v9.6", "h76.9", "v-192" ] ],
+    [ "ldr1:GND", "esp:GND.1", "black", [ "h48", "v-192.4" ] ],
+    [ "ldr1:VCC", "esp:3V3", "red", [ "h28.8", "v-307.2" ] ],
+    [ "ldr1:AO", "esp:33", "cyan", [ "h67.2", "v-269.5" ] ],
+    [ "pot4:GND", "esp:GND.1", "black", [ "v9.6", "h-220.8", "v-153.6" ] ],
+    [ "pot4:VCC", "esp:3V3", "red", [ "v-19.2", "h-260", "v-249.6" ] ],
+    [ "pot4:SIG", "esp:36", "orange", [ "h0" ] ],
+    [ "pot5:GND", "esp:GND.1", "black", [ "v9.6", "h-220.8", "v-259.2" ] ],
+    [ "pot5:VCC", "esp:3V3", "red", [ "v-9.6", "h-260", "v-364.8" ] ],
+    [ "pot5:SIG", "esp:39", "purple", [ "h0" ] ],
+    [ "pot8:GND", "esp:GND.1", "black", [ "v9.6", "h-220.8", "v-345.6" ] ],
+    [ "pot8:VCC", "esp:3V3", "red", [ "v-9.6", "h-260", "v-451.2" ] ],
+    [ "esp:35", "pot9:SIG", "green", [ "h0" ] ],
+    [ "esp:VN", "pot5:SIG", "green", [ "h-43.01", "v326.4", "h173.2" ] ],
+    [ "esp:VP", "pot4:SIG", "green", [ "h-33.41", "v220.8", "h163.2" ] ]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,6 @@
+Firebase ESP32 Client
+LiquidCrystal I2C
+HX711 Arduino Library
+DallasTemperature
+OneWire
+DHT sensor library

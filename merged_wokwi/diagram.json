@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "author": "Smart Monitoring Farm - Merged",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    
+    { "type": "wokwi-lcd2004", "id": "lcd1", "top": -200, "left": 300, "attrs": { "pins": "i2c" } },
+    
+    { "type": "wokwi-hc-sr04", "id": "ultrasonic1", "top": 100, "left": 350, "attrs": { "distance": "150" } },
+    
+    { "type": "wokwi-gas-sensor", "id": "gas1", "top": -50, "left": 450, "attrs": {} },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_co2", "top": 50, "left": 450, "attrs": { "label": "CO2 Level" } },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_co", "top": 150, "left": 450, "attrs": { "label": "CO Level" } },
+    
+    { "type": "wokwi-pir-motion-sensor", "id": "pir1", "top": 250, "left": 450, "attrs": {} },
+    
+    { "type": "wokwi-hx711", "id": "hx1", "top": 350, "left": 450, "attrs": {} },
+    
+    { "type": "wokwi-buzzer", "id": "buzzer1", "top": -100, "left": 700, "attrs": { "volume": "0.5" } },
+    
+    { "type": "wokwi-led", "id": "led_soil", "top": 0, "left": 700, "attrs": { "color": "red", "label": "Soil Alert" } },
+    { "type": "wokwi-resistor", "id": "r_soil", "top": 0, "left": 750, "attrs": { "value": "220" } },
+    
+    { "type": "wokwi-led", "id": "led_gas", "top": 50, "left": 700, "attrs": { "color": "red", "label": "Gas Alert" } },
+    { "type": "wokwi-resistor", "id": "r_gas", "top": 50, "left": 750, "attrs": { "value": "220" } },
+    
+    { "type": "wokwi-led", "id": "led_motion", "top": 100, "left": 700, "attrs": { "color": "yellow", "label": "Motion" } },
+    { "type": "wokwi-resistor", "id": "r_motion", "top": 100, "left": 750, "attrs": { "value": "220" } },
+    
+    { "type": "wokwi-led", "id": "led_ok", "top": 150, "left": 700, "attrs": { "color": "green", "label": "System OK" } },
+    { "type": "wokwi-resistor", "id": "r_ok", "top": 150, "left": 750, "attrs": { "value": "220" } },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_moisture", "top": -150, "left": -350, "attrs": { "label": "Soil Moisture" } },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_ph", "top": -50, "left": -350, "attrs": { "label": "Soil pH" } },
+    
+    { "type": "wokwi-ds18b20", "id": "temp_soil", "top": 50, "left": -350, "attrs": { "temperature": "22" } },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_leaf_wet", "top": 150, "left": -350, "attrs": { "label": "Leaf Wetness" } },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_leaf_temp", "top": 250, "left": -350, "attrs": { "label": "Leaf Temp" } },
+    
+    { "type": "wokwi-dht22", "id": "dht1", "top": 350, "left": -350, "attrs": { "temperature": "25", "humidity": "60" } },
+    
+    { "type": "wokwi-photoresistor-sensor", "id": "ldr1", "top": 450, "left": -350, "attrs": {} },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_wind_speed", "top": -150, "left": -650, "attrs": { "label": "Wind Speed" } },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_wind_dir", "top": -50, "left": -650, "attrs": { "label": "Wind Dir" } },
+    
+    { "type": "wokwi-potentiometer", "id": "pot_rain", "top": 50, "left": -650, "attrs": { "label": "Rainfall" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    
+    [ "lcd1:SDA", "esp:21", "blue", [ "h0" ] ],
+    [ "lcd1:SCL", "esp:22", "green", [ "h0" ] ],
+    [ "lcd1:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "lcd1:GND", "esp:GND.2", "black", [ "h0" ] ],
+    
+    [ "ultrasonic1:VCC", "esp:5V", "red", [ "h0" ] ],
+    [ "ultrasonic1:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "ultrasonic1:TRIG", "esp:12", "blue", [ "h0" ] ],
+    [ "ultrasonic1:ECHO", "esp:13", "green", [ "h0" ] ],
+    
+    [ "gas1:VCC", "esp:5V", "red", [ "h0" ] ],
+    [ "gas1:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "gas1:AOUT", "esp:35", "orange", [ "h0" ] ],
+    
+    [ "pot_co2:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_co2:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "pot_co2:SIG", "esp:32", "brown", [ "h0" ] ],
+    
+    [ "pot_co:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_co:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "pot_co:SIG", "esp:33", "purple", [ "h0" ] ],
+    
+    [ "pir1:VCC", "esp:5V", "red", [ "h0" ] ],
+    [ "pir1:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "pir1:OUT", "esp:19", "yellow", [ "h0" ] ],
+    
+    [ "hx1:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "hx1:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "hx1:DT", "esp:25", "blue", [ "h0" ] ],
+    [ "hx1:SCK", "esp:18", "green", [ "h0" ] ],
+    
+    [ "buzzer1:1", "esp:23", "cyan", [ "h0" ] ],
+    [ "buzzer1:2", "esp:GND.2", "black", [ "h0" ] ],
+    
+    [ "led_soil:A", "r_soil:1", "red", [ "h0" ] ],
+    [ "r_soil:2", "esp:16", "red", [ "h0" ] ],
+    [ "led_soil:C", "esp:GND.2", "black", [ "h0" ] ],
+    
+    [ "led_gas:A", "r_gas:1", "red", [ "h0" ] ],
+    [ "r_gas:2", "esp:17", "red", [ "h0" ] ],
+    [ "led_gas:C", "esp:GND.2", "black", [ "h0" ] ],
+    
+    [ "led_motion:A", "r_motion:1", "yellow", [ "h0" ] ],
+    [ "r_motion:2", "esp:26", "yellow", [ "h0" ] ],
+    [ "led_motion:C", "esp:GND.2", "black", [ "h0" ] ],
+    
+    [ "led_ok:A", "r_ok:1", "green", [ "h0" ] ],
+    [ "r_ok:2", "esp:27", "green", [ "h0" ] ],
+    [ "led_ok:C", "esp:GND.2", "black", [ "h0" ] ],
+    
+    [ "pot_moisture:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_moisture:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot_moisture:SIG", "esp:34", "green", [ "h0" ] ],
+    
+    [ "pot_ph:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_ph:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot_ph:SIG", "esp:35", "blue", [ "h0" ] ],
+    
+    [ "temp_soil:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "temp_soil:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "temp_soil:DQ", "esp:15", "yellow", [ "h0" ] ],
+    
+    [ "pot_leaf_wet:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_leaf_wet:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot_leaf_wet:SIG", "esp:32", "orange", [ "h0" ] ],
+    
+    [ "pot_leaf_temp:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_leaf_temp:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot_leaf_temp:SIG", "esp:35", "pink", [ "h0" ] ],
+    
+    [ "dht1:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "dht1:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "dht1:SDA", "esp:25", "cyan", [ "h0" ] ],
+    
+    [ "ldr1:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "ldr1:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "ldr1:AO", "esp:33", "white", [ "h0" ] ],
+    
+    [ "pot_wind_speed:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_wind_speed:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot_wind_speed:SIG", "esp:36", "brown", [ "h0" ] ],
+    
+    [ "pot_wind_dir:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_wind_dir:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot_wind_dir:SIG", "esp:39", "purple", [ "h0" ] ],
+    
+    [ "pot_rain:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot_rain:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot_rain:SIG", "esp:39", "gray", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}

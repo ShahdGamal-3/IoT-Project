@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "author": "Smart Monitoring Farm",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
+      "top": 100,
+      "left": -200,
+      "attrs": { "label": "Soil Moisture" }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot2",
+      "top": 200,
+      "left": -200,
+      "attrs": { "label": "Soil pH" }
+    },
+    {
+      "type": "wokwi-ds18b20",
+      "id": "temp1",
+      "top": 300,
+      "left": -200,
+      "attrs": { "temperature": "25" }
+    },
+    { "type": "board-ds18b20", "id": "temp2", "top": 104.47, "left": 157.68, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "pot1:GND", "esp:GND.1", "black", [ "v-14.9", "h175.61" ] ],
+    [ "pot1:VCC", "esp:3V3", "red", [ "v23.5", "h64.6", "v-163.2" ] ],
+    [ "pot1:SIG", "esp:34", "green", [ "v13.9", "h165.61" ] ],
+    [ "pot2:GND", "esp:GND.1", "black", [ "v-18.9", "h142.2", "v-96" ] ],
+    [ "pot2:VCC", "esp:3V3", "red", [ "v19.5", "h64.6", "v-259.2" ] ],
+    [ "pot2:SIG", "esp:35", "blue", [ "v29.1", "h84.2", "v-220.8" ] ],
+    [ "temp1:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "temp1:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "temp1:DQ", "esp:15", "yellow", [ "h0" ] ],
+    [ "temp2:DQ", "esp:15", "yellow", [ "v0" ] ],
+    [ "temp2:VCC", "esp:3V3", "red", [ "h19.2", "v-163.2", "h-196.99" ] ],
+    [ "esp:GND.2", "temp2:GND", "black", [ "v0", "h52.84", "v124.8" ] ]
+  ],
+  "dependencies": {}
+}
